@@ -8,6 +8,7 @@ set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 set(sources src/ukf.cpp src/main.cpp src/tools.cpp)
+set(headers src/ukf.h src/tools.h src/measurement_package.h)
 
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
@@ -21,6 +22,6 @@ link_directories(/usr/local/Cellar/libuv/1.11.0/lib)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 
-add_executable(UnscentedKF ${sources})
+add_executable(UnscentedKF ${sources} ${headers})
 
 target_link_libraries(UnscentedKF z ssl uv uWS)
