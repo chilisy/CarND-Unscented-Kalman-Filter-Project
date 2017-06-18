@@ -18,10 +18,10 @@ UKF::UKF() {
     use_radar_ = true;
     
     // Process noise standard deviation longitudinal acceleration in m/s^2
-    std_a_ = 3.;
+    std_a_ = 5.;
     
     // Process noise standard deviation yaw acceleration in rad/s^2
-    std_yawdd_ = 1.;
+    std_yawdd_ = M_PI/180.0*120.0;
     
     // Laser measurement noise standard deviation position1 in m
     std_laspx_ = 0.15;
@@ -55,7 +55,7 @@ UKF::UKF() {
     x_ = VectorXd(n_x_);
     
     // initial covariance matrix
-    P_ = MatrixXd(n_x_, n_x_);
+    P_ = MatrixXd::Identity(n_x_, n_x_);
     
     lambda_ = 3 - n_aug_;
     
@@ -103,6 +103,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
         
         // set first timestamp
         previous_timestamp_ = meas_package.timestamp_- 5e5;
+        counter_ = 0;
         
         is_initialized_ = true;
         return;
@@ -170,7 +171,16 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
     
     PredictLidarMeasurement(&z_pred, &S, H, n_z);
     
+    double nis;
+    nis = CalculateNIS(meas_package, z_pred, S);
+    nis_laser_.push_back(nis);
+    counter_ ++;
+    
     UpdataState4Lidar(meas_package, z_pred, S, H);
+    if (counter_>490){
+        counter_ = 0;
+        WriteNIS();
+    }
     
 }
 
@@ -194,7 +204,18 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     
     PredictRadarMeasurement(&z_pred, &S, &Zsig, n_z);
     
+    double nis;
+    nis = CalculateNIS(meas_package, z_pred, S);
+    nis_radar_.push_back(nis);
+    counter_ ++;
+    
     UpdateState4Radar(meas_package, z_pred, S, n_z, Zsig);
+    if (counter_>490){
+        counter_ = 0;
+        WriteNIS();
+    }
+    
+   
     
 }
 
@@ -400,8 +421,7 @@ void UKF::PredictLidarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &H,
 void UKF::UpdateState4Radar(MeasurementPackage meas_package, VectorXd z_pred, MatrixXd S, int n_z, MatrixXd Zsig){
     
     // measurement vector
-    VectorXd z = VectorXd(n_z);
-    z = meas_package.raw_measurements_;
+    VectorXd z = meas_package.raw_measurements_;
     
     //create matrix for cross correlation Tc
     MatrixXd Tc = MatrixXd(n_x_, n_z);
@@ -454,7 +474,7 @@ void UKF::UpdateState4Radar(MeasurementPackage meas_package, VectorXd z_pred, Ma
     x_ = x_ + K * y;
     P_ = P_ - K * S * K.transpose();
     
-    cout << "x = " << endl << x_ << endl;
+    //cout << "x = " << endl << x_ << endl;
     //cout << "P = " << endl << P_ << endl;
     
 }
@@ -475,3 +495,40 @@ void UKF::UpdataState4Lidar(MeasurementPackage meas_package, VectorXd z_pred, Ma
     P_ = (I - K * H) * P_;
     
 }
+
+double UKF::CalculateNIS(MeasurementPackage meas_package, VectorXd z_pred, MatrixXd S){
+    
+    double nis;
+    long n_z = z_pred.size();
+    VectorXd y = VectorXd(n_z);
+    y = meas_package.raw_measurements_ - z_pred;
+    
+    nis = y.transpose() * S.inverse() * y;
+    
+    //cout << "nis = " << endl << nis << endl;
+    
+    return nis;
+}
+
+void UKF::WriteNIS(){
+    
+    ofstream nis_file;
+    int size_nis;
+    nis_file.open("NIS.csv");
+    
+    if (nis_radar_.size() >= nis_laser_.size())
+        size_nis = nis_laser_.size();
+    else
+        size_nis = nis_radar_.size();
+    
+    nis_file << "NIS radar measurements, NIS laser measurements" << "\n";
+    
+    for (int i=0; i<size_nis; i++){
+        
+        nis_file << nis_radar_[i] << ", " << nis_laser_[i] << "\n";
+        
+    }
+    nis_file.close();
+    
+}
+

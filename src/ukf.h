@@ -9,6 +9,7 @@
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using std::vector;
 
 class UKF {
 public:
@@ -69,6 +70,12 @@ public:
     
     double previous_timestamp_;
     
+    vector<double> nis_radar_;
+    
+    vector<double> nis_laser_;
+    
+    int counter_;
+    
     
     /**
      * Constructor
@@ -122,6 +129,10 @@ private:
     
     void UpdataState4Lidar(MeasurementPackage meas_package, VectorXd z_pred, MatrixXd S,
                            MatrixXd H);
+    
+    double CalculateNIS(MeasurementPackage meas_package, VectorXd z_pred, MatrixXd S);
+    
+    void WriteNIS();
     
 };
 
