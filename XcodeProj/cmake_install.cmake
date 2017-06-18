@@ -1,4 +1,4 @@
-# Install script for directory: /Volumes/CarND/01_Self_Driving_Car_ND/T2/Proj2_Unscented_Kalman_Filter/Proj/CarND-Unscented-Kalman-Filter-Project
+# Install script for directory: /Users/Chili/Desktop/Proj2_Unscented_Kalman_Filter/Proj/CarND-Unscented-Kalman-Filter-Project
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -35,5 +35,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Volumes/CarND/01_Self_Driving_Car_ND/T2/Proj2_Unscented_Kalman_Filter/Proj/CarND-Unscented-Kalman-Filter-Project/XcodeProj/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/Chili/Desktop/Proj2_Unscented_Kalman_Filter/Proj/CarND-Unscented-Kalman-Filter-Project/XcodeProj/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

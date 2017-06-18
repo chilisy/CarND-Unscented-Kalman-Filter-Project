@@ -113,9 +113,15 @@ private:
     
     void PredictMeanAndCovariance();
     
-    void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out);
+    void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd* Zsig_out, int n_z);
     
-    void UpdateState(VectorXd* x_out, MatrixXd* P_out);
+    void PredictLidarMeasurement(VectorXd* z_out, MatrixXd* S_out, MatrixXd &H, int n_z);
+    
+    void UpdateState4Radar(MeasurementPackage meas_package, VectorXd z_pred, MatrixXd S,
+                           int n_z, MatrixXd Zsig);
+    
+    void UpdataState4Lidar(MeasurementPackage meas_package, VectorXd z_pred, MatrixXd S,
+                           MatrixXd H);
     
 };
 
